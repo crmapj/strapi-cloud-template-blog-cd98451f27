@@ -3,7 +3,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const mime = require('mime-types');
-const { categories, authors, articles, global, about } = require('../data/data.json');
+const { categories, authors, posts, global, about } = require('../data/data.json');
 
 async function seedExampleApp() {
   const shouldImportSeedData = await isFirstRun();
@@ -166,15 +166,15 @@ async function updateBlocks(blocks = []) {
   return updatedBlocks;
 }
 
-async function importArticles() {
-  for (const article of articles) {
-    const coverImage = await checkFileExistsBeforeUpload([`${article.slug}.jpg`]);
-    const updatedBlocks = await updateBlocks(article.blocks);
+async function importPosts() {
+  for (const post of posts) {
+    const coverImage = await checkFileExistsBeforeUpload([`${post.slug}.jpg`]);
+    const updatedBlocks = await updateBlocks(post.blocks);
 
     await createEntry({
-      model: 'article',
+      model: 'post',
       entry: {
-        ...article,
+        ...post,
         coverImage,
         blocks: updatedBlocks,
         // Make sure it's not a draft
@@ -239,7 +239,7 @@ async function importAuthors() {
 async function importSeedData() {
   // Allow read of application content types
   await setPublicPermissions({
-    article: ['find', 'findOne'],
+    post: ['find', 'findOne'],
     category: ['find', 'findOne'],
     author: ['find', 'findOne'],
     global: ['find', 'findOne'],
@@ -249,7 +249,7 @@ async function importSeedData() {
   // Create all entries
   await importCategories();
   await importAuthors();
-  await importArticles();
+  await importPosts();
   await importGlobal();
   await importAbout();
 }

@@ -4,11 +4,11 @@ This Strapi instance powers the RoamLife blog at `/blog` on the Next.js frontend
 
 ## Content Type Configuration
 
-### Article Content Type
+### Post Content Type
 
-The Article schema has been customized for RoamLife:
+The Post schema has been customized for RoamLife:
 
-**Schema Location:** `src/api/article/content-types/article/schema.json`
+**Schema Location:** `src/api/post/content-types/post/schema.json`
 
 **Fields:**
 - `title` (string, required)
@@ -64,9 +64,9 @@ TRANSFER_TOKEN_SALT=your-transfer-token-salt
 
 3. **Configure API Permissions:**
    - In Strapi admin, go to Settings → Users & Permissions → Roles → Public
-   - Enable these permissions for Article:
-     - `find` (list articles)
-     - `findOne` (get single article)
+   - Enable these permissions for Post:
+     - `find` (list posts)
+     - `findOne` (get single post)
    - Save
 
 4. **Create API Token:**
@@ -101,18 +101,18 @@ node scripts/seed.js
 ```
 
 This will create:
-- 4 sample articles with content and images
+- 5 sample posts with content and images
 - 2 authors (David Doe, Sarah Baker)
 - 5 categories (news, tech, food, nature, story)
 
 ### Adding Content
 
 1. Log in to Strapi admin panel
-2. Navigate to Content Manager → Articles
-3. Create new article:
+2. Navigate to Content Manager → Posts
+3. Create new post:
    - Title: Auto-generates slug
    - Excerpt: 1-2 sentence summary
-   - Content: Main article (supports markdown/HTML)
+   - Content: Main post body (supports markdown/HTML)
    - Cover Image: Upload hero image
    - Select Author and Category
    - Click "Publish"
@@ -121,7 +121,7 @@ This will create:
 
 ### Response Format
 
-Articles are returned in Strapi's standard format:
+Posts are returned in Strapi's standard format:
 
 ```json
 {
@@ -129,8 +129,8 @@ Articles are returned in Strapi's standard format:
     {
       "id": 1,
       "attributes": {
-        "title": "Article Title",
-        "slug": "article-title",
+        "title": "Post Title",
+        "slug": "post-title",
         "excerpt": "Short summary",
         "content": "<p>Rich HTML content</p>",
         "publishedAt": "2025-11-29T10:00:00.000Z",
@@ -181,9 +181,9 @@ The Next.js frontend normalizes this to a simpler structure.
 
 ### Updating Content Types
 
-If you modify the Article schema:
+If you modify the Post schema:
 
-1. Update `src/api/article/content-types/article/schema.json`
+1. Update `src/api/post/content-types/post/schema.json`
 2. Update frontend TypeScript types in `lib/strapi.ts`
 3. Test locally before deploying
 4. Deploy Strapi first, then frontend

@@ -61,7 +61,7 @@
       "avatar": "sarahbaker@strapi.io.jpg"
     }
   ],
-  "articles": [
+  "posts": [
     {
       "title": "The internet's Own boy",
       "slug": "the-internet-s-own-boy",
