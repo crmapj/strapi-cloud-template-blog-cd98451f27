@@ -138,7 +138,7 @@ async function checkFileExistsBeforeUpload(files) {
   return allFiles.length === 1 ? allFiles[0] : allFiles;
 }
 
-async function updateBlocks(blocks) {
+async function updateBlocks(blocks = []) {
   const updatedBlocks = [];
   for (const block of blocks) {
     if (block.__component === 'shared.media') {
@@ -168,14 +168,14 @@ async function updateBlocks(blocks) {
 
 async function importArticles() {
   for (const article of articles) {
-    const cover = await checkFileExistsBeforeUpload([`${article.slug}.jpg`]);
+    const coverImage = await checkFileExistsBeforeUpload([`${article.slug}.jpg`]);
     const updatedBlocks = await updateBlocks(article.blocks);
 
     await createEntry({
       model: 'article',
       entry: {
         ...article,
-        cover,
+        coverImage,
         blocks: updatedBlocks,
         // Make sure it's not a draft
         publishedAt: Date.now(),
@@ -272,3 +272,4 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+

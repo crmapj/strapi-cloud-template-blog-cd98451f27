@@ -13,17 +13,22 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string"
-    },
-    "description": {
-      "type": "text",
-      "maxLength": 80
+      "type": "string",
+      "required": true
     },
     "slug": {
       "type": "uid",
       "targetField": "title"
     },
-    "cover": {
+    "excerpt": {
+      "type": "text",
+      "maxLength": 280
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    },
+    "coverImage": {
       "type": "media",
       "multiple": false,
       "required": false,
@@ -47,3 +52,4 @@
     }
   }
 }
+
