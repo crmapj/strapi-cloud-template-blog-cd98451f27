@@ -1,7 +1,5 @@
 'use strict';
 
-const defaultPlugin = require('@strapi-community/plugin-seo/strapi-server');
-
 const getContentManagerOptions = (schema) => {
   if (!schema) {
     return {};
@@ -64,19 +62,18 @@ const buildContentTypesPayload = (strapi) => {
   );
 };
 
-module.exports = (strapi) => {
-  const plugin = defaultPlugin(strapi);
+module.exports = (plugin) => {
   const defaultSeoService = plugin.services.seo;
 
-  plugin.services.seo = ({ strapi: strapiInstance }) => {
-    const originalService = defaultSeoService({ strapi: strapiInstance });
+  plugin.services.seo = ({ strapi }) => {
+    const originalService = defaultSeoService({ strapi });
 
     return {
       ...originalService,
       // Strapi v5 removed the internal "__schema__" property. This override
       // rebuilds the plugin's payload without assuming that legacy field exists.
       getContentTypes() {
-        return buildContentTypesPayload(strapiInstance);
+        return buildContentTypesPayload(strapi);
       },
     };
   };
