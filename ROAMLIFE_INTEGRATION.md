@@ -111,7 +111,7 @@ Example `POST /api/posts` response (simplified):
 The Next.js frontend normalizes this to simple `Post`/`Author`/`Seo` objects in `roamlife/lib/strapi.ts`.
 
 ## SEO + Sitemap/Robots
-- Plugin: `@strapi/plugin-seo` enabled in `config/plugins.js` with component `shared.seo` attached to Post.
+- Plugin: `@strapi-community/plugin-seo` (v5-compatible via extension) enabled in `config/plugins.js` with component `shared.seo` attached to Post.
 - Frontend uses seo fields for metadata (title/description/OG/Twitter). Fallbacks: seo → excerpt → content.
 - Sitemaps/robots served by Next.js metadata routes:
   - `app/sitemap.ts` builds from `getPostSlugs()` + base URLs.

@@ -42,6 +42,7 @@ grep '"posts"' data/data.json
 cat config/plugins.js | grep seo
 ```
 - Component files exist: `src/components/shared/seo.json`, `src/components/shared/meta-social.json`.
+- Dependency uses `@strapi-community/plugin-seo` (v2.x) for Strapi v5 with the provided extension.
 
 ## 🚀 Deployment Steps
 
