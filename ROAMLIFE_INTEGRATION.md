@@ -1,31 +1,37 @@
-# RoamLife Strapi CMS - Deployment Guide
+# RoamLife Strapi CMS - Minimal Blog
 
-This Strapi instance powers the RoamLife blog at `/blog` on the Next.js frontend.
+This Strapi instance powers the RoamLife blog at `/blog` on the Next.js frontend. The CMS is intentionally minimal: **Posts + Authors + SEO**, nothing else.
 
 ## Content Type Configuration
 
-### Post Content Type
-
-The Post schema has been customized for RoamLife:
-
-**Schema Location:** `src/api/post/content-types/post/schema.json`
-
-**Fields:**
+### Post (collection type)
 - `title` (string, required)
-- `slug` (uid, auto-generated from title)
-- `excerpt` (text, max 280 chars) - Brief summary
-- `content` (richtext, required) - Full article content
-- `coverImage` (single media) - Hero image
-- `author` (relation to Author)
-- `category` (relation to Category)
-- `blocks` (dynamiczone) - Rich content blocks
+- `slug` (uid, from title)
+- `excerpt` (text, max 280 chars)
+- `content` (richtext, required)
+- `coverImage` (single media)
+- `author` (relation -> Author)
+- `seo` (component `shared.seo` with metaTitle, metaDescription, metaImage, canonicalURL, metaSocial)
+- `draftAndPublish`: enabled
+
+### Author (collection type)
+- `name` (string)
+- `email` (string, optional)
+- `avatar` (single media)
+- `posts` (oneToMany inverse from Post)
+
+### SEO Component
+- `metaTitle` (string, optional)
+- `metaDescription` (text, optional)
+- `metaImage` (single media)
+- `canonicalURL` (string)
+- `metaSocial` (repeatable component `shared.meta-social` with socialNetwork/title/description/image)
+
+> Removed types: Category, Global, About, Article, blocks. Keep the CMS lean.
 
 ## Environment Setup
 
-### Required Environment Variables
-
-Create a `.env` file in the Strapi root:
-
+Create a `.env` in the Strapi root:
 ```
 # Server
 HOST=0.0.0.0
@@ -45,160 +51,78 @@ JWT_SECRET=your-jwt-secret
 TRANSFER_TOKEN_SALT=your-transfer-token-salt
 ```
 
-### Strapi Cloud Deployment
+Frontend `.env.local` (Next.js):
+```
+STRAPI_API_URL=https://your-instance.strapiapp.com
+STRAPI_API_TOKEN=your-generated-token
+NEXT_PUBLIC_APP_URL=https://roamlife.ai
+```
 
-1. **Push to Git:**
-   ```bash
-   git add .
-   git commit -m "Configure Article content type for RoamLife"
-   git push origin main
-   ```
-
-2. **Deploy to Strapi Cloud:**
-   - Log in to [cloud.strapi.io](https://cloud.strapi.io)
-   - Connect your Git repository
-   - Strapi Cloud will automatically:
-     - Set up PostgreSQL database
-     - Generate environment variables
-     - Deploy your instance
-
-3. **Configure API Permissions:**
-   - In Strapi admin, go to Settings → Users & Permissions → Roles → Public
-   - Enable these permissions for Post:
-     - `find` (list posts)
-     - `findOne` (get single post)
-   - Save
-
-4. **Create API Token:**
-   - Go to Settings → API Tokens
-   - Click "Create new API Token"
-   - Name: "RoamLife Frontend"
-   - Token type: Read-only
-   - Token duration: Unlimited
-   - Copy the generated token
-
-5. **Configure Frontend:**
-   - Add token to Next.js `.env`:
-     ```
-     STRAPI_API_URL=https://your-instance.strapiapp.com
-     STRAPI_API_TOKEN=your-generated-token
-     ```
+## Strapi Cloud Deployment
+1. Commit and push changes.
+2. Deploy via Strapi Cloud (connect repo). Strapi will install deps, build admin, start server.
+3. Configure API permissions: Settings → Users & Permissions → Roles → Public → enable `find` + `findOne` for **post** and **author**.
+4. Create API token: Settings → API Tokens → “RoamLife Frontend” (read-only, unlimited) → add to Next.js env.
 
 ## Seeding Data
+- Seed script: `npm run seed:example`
+- Data source: `data/data.json` (authors + posts + optional seo).
+- What it does: uploads avatars/covers, creates authors, creates posts with `publishedAt` set, and applies public permissions for post/author.
 
-### Initial Setup
-
-To populate with sample blog posts:
-
-```bash
-npm run strapi import -- -f data/data.json
-```
-
-Or use the seed script:
-
-```bash
-node scripts/seed.js
-```
-
-This will create:
-- 5 sample posts with content and images
-- 2 authors (David Doe, Sarah Baker)
-- 5 categories (news, tech, food, nature, story)
-
-### Adding Content
-
-1. Log in to Strapi admin panel
-2. Navigate to Content Manager → Posts
-3. Create new post:
-   - Title: Auto-generates slug
-   - Excerpt: 1-2 sentence summary
-   - Content: Main post body (supports markdown/HTML)
-   - Cover Image: Upload hero image
-   - Select Author and Category
-   - Click "Publish"
-
-## API Structure
-
-### Response Format
-
-Posts are returned in Strapi's standard format:
-
+## API Shape (Strapi v5 flattened)
+Example `POST /api/posts` response (simplified):
 ```json
 {
   "data": [
     {
       "id": 1,
-      "attributes": {
-        "title": "Post Title",
-        "slug": "post-title",
-        "excerpt": "Short summary",
-        "content": "<p>Rich HTML content</p>",
-        "publishedAt": "2025-11-29T10:00:00.000Z",
-        "coverImage": {
-          "data": {
-            "id": 1,
-            "attributes": {
-              "url": "/uploads/image.jpg",
-              "alternativeText": "Image description",
-              "width": 1200,
-              "height": 630
-            }
-          }
+      "title": "The internet's own boy",
+      "slug": "the-internet-s-own-boy",
+      "excerpt": "Field notes...",
+      "content": "<p>...</p>",
+      "publishedAt": "2025-12-07T10:00:00.000Z",
+      "coverImage": {
+        "url": "/uploads/the-internet-s-own-boy.jpg",
+        "alternativeText": null,
+        "width": 1200,
+        "height": 630
+      },
+      "author": {
+        "name": "David Doe",
+        "email": "daviddoe@strapi.io",
+        "avatar": { "url": "/uploads/daviddoe@strapi.io.jpg" }
+      },
+      "seo": {
+        "metaTitle": "The internet's own boy",
+        "metaDescription": "Field notes...",
+        "canonicalURL": "https://roamlife.ai/blog/the-internet-s-own-boy",
+        "metaImage": {
+          "url": "/uploads/the-internet-s-own-boy.jpg",
+          "alternativeText": null,
+          "width": 1200,
+          "height": 630
         },
-        "author": {
-          "data": {
-            "id": 1,
-            "attributes": {
-              "name": "Author Name",
-              "title": "Role",
-              "avatar": { ... }
-            }
-          }
-        }
+        "metaSocial": []
       }
     }
   ]
 }
 ```
+The Next.js frontend normalizes this to simple `Post`/`Author`/`Seo` objects in `roamlife/lib/strapi.ts`.
 
-The Next.js frontend normalizes this to a simpler structure.
-
-## Content Guidelines for RoamLife
-
-### Writing Style
-- Keep excerpts under 160 characters for optimal display
-- Use markdown for content formatting
-- Include a compelling cover image (recommended 1200x630px)
-- Tag articles with relevant categories
-
-### SEO Best Practices
-- Descriptive titles (50-60 chars)
-- Meaningful slugs (auto-generated but editable)
-- Excerpt should entice readers
-- Use alt text for images
+## SEO + Sitemap/Robots
+- Plugin: `@strapi/plugin-seo` enabled in `config/plugins.js` with component `shared.seo` attached to Post.
+- Frontend uses seo fields for metadata (title/description/OG/Twitter). Fallbacks: seo → excerpt → content.
+- Sitemaps/robots served by Next.js metadata routes:
+  - `app/sitemap.ts` builds from `getPostSlugs()` + base URLs.
+  - `app/robots.txt/route.ts` allows crawl and points to `/sitemap.xml`.
 
 ## Maintenance
-
-### Updating Content Types
-
-If you modify the Post schema:
-
-1. Update `src/api/post/content-types/post/schema.json`
-2. Update frontend TypeScript types in `lib/strapi.ts`
-3. Test locally before deploying
-4. Deploy Strapi first, then frontend
-
-### Database Backups
-
-Strapi Cloud handles automatic backups. For manual backups:
-
-```bash
-npm run strapi export -- --file backup.tar.gz
-```
+- Schema edits: update `src/api/post/content-types/post/schema.json` or `src/components/shared/*.json`, then align types in `roamlife/lib/strapi.ts`.
+- Generated types: none committed; Strapi regenerates.
+- Deployment order: deploy Strapi (new schema) first, then Next.js so SEO/meta fields are available.
 
 ## Support
-
 - Strapi Docs: https://docs.strapi.io
-- RoamLife Frontend: `../roamlife/backend-cms/readme.md`
 - API Token Management: Strapi Admin → Settings → API Tokens
-
+- Frontend Strapi client: `roamlife/lib/strapi.ts`
